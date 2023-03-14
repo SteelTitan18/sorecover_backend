@@ -66,6 +66,7 @@ diff-match-patch @ file:///Users/ktietz/demo/mc3/conda-bld/diff-match-patch_1630
 dill @ file:///tmp/build/80754af9/dill_1623919422540/work
 distributed @ file:///tmp/abs_593da390-bd12-4acc-ba49-4c9993cbe8abgqg_w3rb/croots/recipe/distributed_1658520746481/work
 Django==4.1.7
+django-phonenumber-field==7.0.2
 djangorestframework==3.14.0
 djongo==1.3.6
 dnspython==2.3.0
@@ -178,6 +179,7 @@ pathspec @ file:///tmp/abs_1foqurpsov/croots/recipe/pathspec_1659627126545/work
 patsy==0.5.2
 pep8==1.7.1
 pexpect @ file:///tmp/build/80754af9/pexpect_1605563209008/work
+phonenumbers==8.13.7
 pickleshare @ file:///tmp/build/80754af9/pickleshare_1606932040724/work
 Pillow==9.2.0
 pkginfo @ file:///tmp/build/80754af9/pkginfo_1643162084911/work
