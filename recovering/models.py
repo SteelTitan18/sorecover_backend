@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -28,7 +30,15 @@ class Admin(User):
 
 
 class Community(models.Model):
+    class CommunityState(models.TextChoices):
+        DRAFT = 'DR', 'Draft'
+        VALIDATED = 'VD', 'Validated'
+
     name = models.CharField(verbose_name="Nom: ", max_length=50, unique=True)
+    status = models.CharField(verbose_name="Status", max_length=2, choices=CommunityState.choices,
+                              default=CommunityState.DRAFT)
+    creator = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='community_creator',
+                                limit_choices_to={'type': Member.MemberType.PREMIUM})
     members = models.ManyToManyField(Member, related_name='community_members')
     created = models.DateTimeField(auto_now_add=True)
 
@@ -74,3 +84,32 @@ class Version(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class CommunityValidation(models.Model):
+    validator = models.ForeignKey(Admin, related_name='validation_author', on_delete=models.DO_NOTHING)
+    community = models.ForeignKey(Community, related_name='validation_community', on_delete=models.DO_NOTHING)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.community.name
+
+
+@receiver(post_save, sender=Community)
+def create_comity(sender, instance, **kwargs):
+    # Créer le comité directeur pour le nouveau groupe
+    comity = Comity.objects.create(community=instance)
+    comity.members.set([instance.creator.id])
+    comity.save()
+
+
+@receiver(pre_save, sender=Community)
+def create_comity_validation(sender, instance, **kwargs):
+    if instance.id:
+        # Si l'objet existe déjà, récupérez l'objet original depuis la base de données
+        original = Community.objects.get(id=instance.id)
+        # Si l'attribut 'status' a changé, créez un nouvel objet 'MyModel2'
+        if original.status != instance.status:
+            validation_object = CommunityValidation.objects.create(community=instance)
+            validation_object.validator = Admin.objects.get(id=1)
+            validation_object.save()

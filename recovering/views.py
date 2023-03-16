@@ -19,7 +19,7 @@ class VersionViewSet(ModelViewSet):
 
 
 class AdminViewSet(ModelViewSet):
-    serializer_class = VersionSerializer
+    serializer_class = AdminSerializer
 
     def get_queryset(self):
         return Admin.objects.all()
@@ -44,3 +44,10 @@ class SaloonViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Saloon.objects.all()
+
+
+class CommunityValidationViewSet(ModelViewSet):
+    serializer_class = CommunityValidationSerializer
+
+    def get_queryset(self):
+        return CommunityValidation.objects.all()

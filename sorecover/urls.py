@@ -20,12 +20,13 @@ from rest_framework import routers
 
 router = routers.SimpleRouter()
 
+router.register('admin', AdminViewSet, basename='admin')
 router.register('member', MemberViewSet, basename='member')
 router.register('version', VersionViewSet, basename='version')
-router.register('admin', AdminViewSet, basename='admin')
 router.register('community', CommunityViewSet, basename='community')
 router.register('comity', ComityViewSet, basename='comity')
 router.register('saloon', SaloonViewSet, basename='saloon')
+router.register('community_validation', CommunityValidationViewSet, basename='community_validation')
 
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
