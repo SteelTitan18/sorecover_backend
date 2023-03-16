@@ -78,7 +78,7 @@ DATABASES = {
         'NAME': 'sorecover',
         'ENFORCE_SCHEMA': False,
         'CLIENT': {
-            'host': 'mongodb+srv://dev:B7Kh6Im6Znver9NB@sorecover.yz6t0cp.mongodb.net/?retryWrites=true&w=majority'
+            'host': 'mongodb+srv://dev:mGnhLiGM6IbpSKIK@sorecover.ncmfpci.mongodb.net/?retryWrites=true&w=majority'
         }
     }
 }
