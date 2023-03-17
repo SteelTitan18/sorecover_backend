@@ -47,6 +47,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "recovering.models.CurrentUserMiddleware"
 ]
 
 ROOT_URLCONF = "sorecover.urls"
@@ -78,7 +79,7 @@ DATABASES = {
         'NAME': 'sorecover',
         'ENFORCE_SCHEMA': False,
         'CLIENT': {
-            'host': 'mongodb+srv://dev:jpUgnnWqGYztY1uQ@sorecover.pyudjnt.mongodb.net/?retryWrites=true&w=majority'
+            'host': 'mongodb+srv://dev:FVRe2G6m4nXdDu89@sorecover.smkggdb.mongodb.net/?retryWrites=true&w=majority'
         }
     }
 }
@@ -99,6 +100,18 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
+]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'django.contrib.auth.hashers.CryptPasswordHasher',
 ]
 
 # Internationalization

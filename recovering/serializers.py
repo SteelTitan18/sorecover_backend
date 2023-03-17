@@ -11,7 +11,7 @@ class VersionSerializer(serializers.ModelSerializer):
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ['id', 'username', 'type', 'first_name', 'last_name',
+        fields = ['id', 'username', 'password', 'type', 'first_name', 'last_name',
                   'created', 'email', 'city', 'neighborhood',
                   'phone_number']
 
@@ -19,14 +19,14 @@ class MemberSerializer(serializers.ModelSerializer):
 class AdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Admin
-        fields = ['id', 'first_name', 'last_name',
+        fields = ['id', 'username', 'first_name', 'last_name', 'password',
                   'created', 'email']
 
 
 class CommunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Community
-        fields = ['id', 'creator', 'name', 'created']
+        fields = ['id', 'creator', 'name', 'status', 'created']
 
 
 class ComitySerializer(serializers.ModelSerializer):

@@ -1,8 +1,11 @@
+import threading
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
+
+current_user = threading.local()
 
 
 # Create your models here.
@@ -24,6 +27,7 @@ class Member(User):
 
 
 class Admin(User):
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.username
@@ -95,21 +99,43 @@ class CommunityValidation(models.Model):
         return self.community.name
 
 
+@receiver(pre_save, sender=Member)
+def password_validation(sender, instance, **kwargs):
+    instance.set_password(instance.password)
+
+
+@receiver(pre_save, sender=Admin)
+def password_validation(sender, instance, **kwargs):
+    instance.set_password(instance.password)
+
+
 @receiver(post_save, sender=Community)
 def create_comity(sender, instance, **kwargs):
     # Créer le comité directeur pour le nouveau groupe
-    comity = Comity.objects.create(community=instance)
-    comity.members.set([instance.creator.id])
-    comity.save()
+    if not instance.pk:
+        comity = Comity.objects.create(community=instance)
+        comity.members.set([instance.creator.id])
+        comity.save()
 
 
 @receiver(pre_save, sender=Community)
 def create_comity_validation(sender, instance, **kwargs):
-    if instance.id:
+    if instance.pk:
         # Si l'objet existe déjà, récupérez l'objet original depuis la base de données
-        original = Community.objects.get(id=instance.id)
+        original = Community.objects.get(pk=instance.pk)
         # Si l'attribut 'status' a changé, créez un nouvel objet 'MyModel2'
-        if original.status != instance.status:
-            validation_object = CommunityValidation.objects.create(community=instance)
-            validation_object.validator = Admin.objects.get(id=1)
-            validation_object.save()
+        if (original.status != instance.status) and (original.status == Community.CommunityState.DRAFT):
+            user = Admin.objects.get(pk=current_user.value.id)
+            comity_validation = CommunityValidation.objects.create(community=instance,
+                                                                   validator=user)
+            # comity_validation.save()
+
+
+class CurrentUserMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        current_user.value = request.user
+        response = self.get_response(request)
+        return response
