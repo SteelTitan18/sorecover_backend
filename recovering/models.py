@@ -50,6 +50,11 @@ class Community(models.Model):
         return self.name
 
 
+@receiver(post_save, sender=Community)
+def set_creator(sender, instance, **kwargs):
+    instance.creator = Member.objects.get(pk=current_user.value.id)
+
+
 class Comity(models.Model):
     community = models.OneToOneField(Community, on_delete=models.CASCADE)
     members = models.ManyToManyField(Member, related_name='comity_members')
@@ -78,6 +83,11 @@ class Saloon(models.Model):
         return self.title
 
 
+@receiver(post_save, sender=Saloon)
+def set_author(sender, instance, **kwargs):
+    instance.author = Member.objects.get(pk=current_user.value.id)
+
+
 class Version(models.Model):
     title = models.CharField(verbose_name='Titre: ', max_length=50)
     audio = models.FileField(upload_to='versions/audio/')
@@ -88,6 +98,11 @@ class Version(models.Model):
 
     def __str__(self):
         return self.title
+
+
+@receiver(post_save, sender=Version)
+def set_author(sender, instance, **kwargs):
+    instance.author = Member.objects.get(pk=current_user.value.id)
 
 
 class CommunityValidation(models.Model):
@@ -101,12 +116,16 @@ class CommunityValidation(models.Model):
 
 @receiver(pre_save, sender=Member)
 def password_validation(sender, instance, **kwargs):
-    instance.set_password(instance.password)
+    original = Member.objects.get(pk=instance.pk)
+    if instance.password != original.password:
+        instance.set_password(instance.password)
 
 
 @receiver(pre_save, sender=Admin)
 def password_validation(sender, instance, **kwargs):
-    instance.set_password(instance.password)
+    original = Admin.objects.get(pk=instance.pk)
+    if instance.password != original.password:
+        instance.set_password(instance.password)
 
 
 @receiver(post_save, sender=Community)

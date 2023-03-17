@@ -29,6 +29,12 @@ class CommunitySerializer(serializers.ModelSerializer):
         fields = ['id', 'creator', 'name', 'status', 'created']
 
 
+class ValidatedCommunitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Community
+        fields = ['id', 'creator', 'name', 'status', 'created']
+
+
 class ComitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Comity

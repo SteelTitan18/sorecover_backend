@@ -32,6 +32,13 @@ class CommunityViewSet(ModelViewSet):
         return Community.objects.all()
 
 
+class ValidatedCommunityViewSet(ModelViewSet):
+    serializer_class = ValidatedCommunitySerializer
+
+    def get_queryset(self):
+        return Community.objects.filter(status=Community.CommunityState.VALIDATED)
+
+
 class ComityViewSet(ModelViewSet):
     serializer_class = ComitySerializer
 
