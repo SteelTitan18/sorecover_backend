@@ -51,3 +51,16 @@ class CommunityValidationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunityValidation
         fields = ['id', 'validator', 'community']
+
+
+class FavoritesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorites
+        fields = ['id', 'member', 'version']
+
+
+class FinalVersionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FinalVersion
+        fields = ['id', 'version']
+

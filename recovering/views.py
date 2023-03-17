@@ -58,3 +58,29 @@ class CommunityValidationViewSet(ModelViewSet):
 
     def get_queryset(self):
         return CommunityValidation.objects.all()
+
+
+class FavoritesViewSet(ModelViewSet):
+    serializer_class = FavoritesSerializer
+
+    def get_queryset(self):
+        queryset = Favorites.objects.all()
+
+        member_id = self.request.GET.get('member_id')
+        if member_id is not None:
+            request_member = Member.objects.get(pk=member_id)
+            queryset = queryset.filter(member=request_member)
+
+        version_id = self.request.GET.get('version_id')
+        if version_id is not None:
+            request_version = Version.objects.get(pk=version_id)
+            queryset = queryset.filter(version=request_version)
+
+        return queryset
+
+
+class FinalVersionViewSet(ModelViewSet):
+    serializer_class = FinalVersionSerializer
+
+    def get_queryset(self):
+        return FinalVersion.objects.all()

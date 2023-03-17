@@ -28,6 +28,8 @@ router.register('validated_community', ValidatedCommunityViewSet, basename='vali
 router.register('comity', ComityViewSet, basename='comity')
 router.register('saloon', SaloonViewSet, basename='saloon')
 router.register('community_validation', CommunityValidationViewSet, basename='community_validation')
+router.register('favorites', FavoritesViewSet, basename='favorites')
+router.register('final_version', FinalVersionViewSet, basename='final_version')
 
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),

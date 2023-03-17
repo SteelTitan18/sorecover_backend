@@ -85,7 +85,8 @@ class Saloon(models.Model):
 
 @receiver(post_save, sender=Saloon)
 def set_author(sender, instance, **kwargs):
-    instance.author = Member.objects.get(pk=current_user.value.id)
+    if not instance.pk:
+        instance.author = Member.objects.get(pk=current_user.value.id)
 
 
 class Version(models.Model):
@@ -102,7 +103,23 @@ class Version(models.Model):
 
 @receiver(post_save, sender=Version)
 def set_author(sender, instance, **kwargs):
-    instance.author = Member.objects.get(pk=current_user.value.id)
+    if not instance.pk:
+        instance.author = Member.objects.get(pk=current_user.value.id)
+
+
+@receiver(post_save, sender=Version)
+def set_saloon_status(sender, instance, **kwargs):
+    instance.saloon.state = Saloon.SaloonState.PROGRESSING
+    instance.saloon.save()
+
+
+class Favorites(models.Model):
+    member = models.ForeignKey(Member, related_name='favorite_author', on_delete=models.CASCADE)
+    version = models.ForeignKey(Version, related_name='favorite_version', on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.version.title
 
 
 class CommunityValidation(models.Model):
@@ -112,6 +129,26 @@ class CommunityValidation(models.Model):
 
     def __str__(self):
         return self.community.name
+
+
+class FinalVersion(models.Model):
+    version = models.ForeignKey(Version, related_name='validated_version', on_delete=models.CASCADE)
+    saloon = models.ForeignKey(Saloon, related_name='terminate_saloon', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.saloon.name
+
+
+@receiver(pre_save, sender=FinalVersion)
+def set_saloon(sender, instance, **kwargs):
+    instance.saloon = instance.version.saloon
+    # instance.save()
+
+
+@receiver(post_save, sender=FinalVersion)
+def terminate_saloon(sender, instance, **kwargs):
+    instance.saloon.state = Saloon.SaloonState.FINISH
+    instance.saloon.save()
 
 
 @receiver(pre_save, sender=Member)
