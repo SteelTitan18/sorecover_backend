@@ -19,9 +19,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 environ.Env.read_env(env_file=str(BASE_DIR / "sorecover" / ".env"))
 
-SECRET_KEY = env("SECRET_KEY")
-DEBUG = env.bool("DEBUG")
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+SECRET_KEY = "django-insecure-*q-&opu4xizt^+cy92#fk!ov2d+531ev1e+6-c*daa=rjmttat"
+DEBUG = False
+ALLOWED_HOSTS = ['127.0.0.1']
 
 # Application definition
 
@@ -77,7 +77,7 @@ DATABASES = {
         'NAME': 'sorecover',
         'ENFORCE_SCHEMA': False,
         'CLIENT': {
-            'host': env("MONGODB_URI")
+            'host': 'mongodb+srv://dev:FVRe2G6m4nXdDu89@sorecover.smkggdb.mongodb.net/?retryWrites=true&w=majority'
         }
     }
 }
