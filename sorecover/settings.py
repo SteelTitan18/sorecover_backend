@@ -21,7 +21,7 @@ environ.Env.read_env(env_file=str(BASE_DIR / "sorecover" / ".env"))
 
 SECRET_KEY = "django-insecure-*q-&opu4xizt^+cy92#fk!ov2d+531ev1e+6-c*daa=rjmttat"
 DEBUG = False
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 

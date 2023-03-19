@@ -1,0 +1,1 @@
+web: gunicorn sorecover.wsgi --log-file -
