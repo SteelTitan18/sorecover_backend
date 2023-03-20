@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "recovering",
     "phonenumber_field",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -45,7 +46,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "recovering.models.CurrentUserMiddleware"
+    "recovering.models.CurrentUserMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "sorecover.urls"
@@ -136,3 +138,7 @@ MEDIA_ROOT = BASE_DIR / 'mediafiles'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CORS_ALLOWED_ORIGINS = {
+    'http://localhost:8080',
+}
