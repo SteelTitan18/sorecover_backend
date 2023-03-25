@@ -9,18 +9,18 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 import environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 env = environ.Env()
 environ.Env.read_env(env_file=str(BASE_DIR / "sorecover" / ".env"))
 
 SECRET_KEY = "django-insecure-*q-&opu4xizt^+cy92#fk!ov2d+531ev1e+6-c*daa=rjmttat"
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     "recovering",
     "phonenumber_field",
     "corsheaders",
+    'rest_framework.authtoken',
+    'knox'
 ]
 
 MIDDLEWARE = [
@@ -114,6 +116,17 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.CryptPasswordHasher',
 ]
 
+REST_FRAMEWORK = {
+    """'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnorReadOnly'
+    ],"""
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.simplejwt.authentication.JWTAuthentication'
+        'knox.auth.TokenAuthentication',
+    ]
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -128,11 +141,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'mediafiles'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

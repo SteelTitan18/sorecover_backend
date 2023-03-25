@@ -16,6 +16,30 @@ class MemberSerializer(serializers.ModelSerializer):
                   'phone_number']
 
 
+"""class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Member
+        fields = ['id', 'username', 'password', 'type', 'first_name', 'last_name',
+                  'created', 'email', 'city', 'neighborhood',
+                  'phone_number']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        member = Member.objects.create(
+            username=validated_data['username'],
+            password=validated_data['password'],
+            type=validated_data['type'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            email=validated_data['email'],
+            city=validated_data['city'],
+            neighborhood=validated_data['neighborhood'],
+            phone_number=validated_data['phone_number']
+        )
+
+        return member"""
+
+
 class AdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Admin
@@ -26,7 +50,7 @@ class AdminSerializer(serializers.ModelSerializer):
 class CommunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Community
-        fields = ['id', 'creator', 'name', 'status', 'created']
+        fields = ['id', 'creator', 'name', 'status', 'created',  'members']
 
 
 class ValidatedCommunitySerializer(serializers.ModelSerializer):
@@ -64,3 +88,8 @@ class FinalVersionSerializer(serializers.ModelSerializer):
         model = FinalVersion
         fields = ['id', 'version']
 
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['author', 'content', 'saloon']

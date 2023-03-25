@@ -38,6 +38,8 @@ class Community(models.Model):
         DRAFT = 'DR', 'Draft'
         VALIDATED = 'VD', 'Validated'
 
+    # def __int__(self):
+
     name = models.CharField(verbose_name="Nom: ", max_length=50, unique=True)
     status = models.CharField(verbose_name="Status", max_length=2, choices=CommunityState.choices,
                               default=CommunityState.DRAFT)
@@ -129,6 +131,21 @@ class CommunityValidation(models.Model):
 
     def __str__(self):
         return self.community.name
+
+
+class Message(models.Model):
+    author = models.ForeignKey(Member, related_name='message_author', on_delete=models.CASCADE)
+    content = models.CharField(verbose_name="contenu", max_length=500)
+    created = models.DateTimeField(auto_now_add=True)
+    saloon = models.ForeignKey(Saloon, related_name='message_saloon', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.content
+
+
+@receiver(post_save, sender=Message)
+def set_message_author(sender, instance, **kwargs):
+    instance.author = Member.objects.get(pk=current_user.value.id)
 
 
 class FinalVersion(models.Model):
