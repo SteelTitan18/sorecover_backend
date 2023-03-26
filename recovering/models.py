@@ -170,9 +170,12 @@ def terminate_saloon(sender, instance, **kwargs):
 
 @receiver(pre_save, sender=Member)
 def password_validation(sender, instance, **kwargs):
-    original = Member.objects.get(pk=instance.pk)
-    if instance.password != original.password:
+    if not instance.pk:
         instance.set_password(instance.password)
+    else:
+        original = Member.objects.get(pk=instance.pk)
+        if instance.password != original.password:
+            instance.set_password(instance.password)
 
 
 @receiver(pre_save, sender=Admin)
