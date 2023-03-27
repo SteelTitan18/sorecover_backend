@@ -15,11 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from recovering.views import *
 from rest_framework import routers
-from knox import views as knox_views
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from recovering import views
+
+from recovering.views import *
 
 router = routers.SimpleRouter()
 
@@ -34,17 +32,13 @@ router.register('community_validation', CommunityValidationViewSet, basename='co
 router.register('favorites', FavoritesViewSet, basename='favorites')
 router.register('final_version', FinalVersionViewSet, basename='final_version')
 router.register('message', MessageViewSet, basename='message')
-# router.register('community/<int:community_id>/members', MemberViewSet, basename='community_members')
 
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
-    path('api/login/', LoginAPI.as_view(), name='login'),
-    path('api/logout/', knox_views.LogoutView.as_view(), name='logout'),
+    path('api/login/', MyObtainTokenPairView.as_view(), name='login'),
     path('api/community/<int:community_id>/members', MemberViewSet.as_view({'get': 'list'}), name='community_members'),
     path('api/community/<int:community_id>/saloons', SaloonViewSet.as_view({'get': 'list'}), name='community_saloons'),
     path('api/saloon/<int:saloon_id>/messages', MessageViewSet.as_view({'get': 'list'}), name='saloon_messages'),
-
-    # path('login/', views.user_login, name='login'),
 ]

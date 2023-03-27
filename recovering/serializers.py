@@ -1,5 +1,19 @@
+from abc import ABC
+
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from recovering.models import *
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super(MyTokenObtainPairSerializer, cls).get_token(user)
+
+        token['username'] = user.username
+        member = user
+
+        return token
 
 
 class VersionSerializer(serializers.ModelSerializer):
@@ -50,7 +64,7 @@ class AdminSerializer(serializers.ModelSerializer):
 class CommunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Community
-        fields = ['id', 'creator', 'name', 'status', 'created',  'members']
+        fields = ['id', 'creator', 'name', 'status', 'created', 'members']
 
 
 class ValidatedCommunitySerializer(serializers.ModelSerializer):

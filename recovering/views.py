@@ -1,15 +1,9 @@
-from knox.models import AuthToken
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import *
-from rest_framework import generics, permissions
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from recovering.serializers import *
-from recovering.models import *
-from django.contrib.auth import authenticate, login
-from django.http import HttpResponse
-from django.shortcuts import render
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from knox.views import LoginView as KnoxLoginView
 
 
 # Create your views here.
@@ -26,29 +20,16 @@ class MemberViewSet(ModelViewSet):
             return self.queryset
 
 
-class LoginAPI(KnoxLoginView):
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request, format=None):
-        serializer = AuthTokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        login(request, user)
-        return super(LoginAPI, self).post(request, format=None)
-
-
-"""class RegisterAPI(generics.GenericAPIView):
-    serializer_class = RegisterSerializer
+class MyObtainTokenPairView(TokenObtainPairView):
+    permission_classes = (AllowAny,)
+    serializer_class = MyTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        member = serializer.save()
-
-        return Response({
-            "member": MemberSerializer(member, context=self.get_serializer_context()).data,
-            "token": AuthToken.objects.create(member)[1]
-        })"""
+        response = super(MyObtainTokenPairView, self).post(request, *args, **kwargs)
+        token = response.data['access']
+        username = request.data.get('username', None)
+        user = Member.objects.get(username=username)
+        return Response({'name': user.username, 'email': user.email, 'token': token})
 
 
 class VersionViewSet(ModelViewSet):
@@ -104,21 +85,6 @@ class CommunityValidationViewSet(ModelViewSet):
 
     def get_queryset(self):
         return CommunityValidation.objects.all()
-
-    """def members(self, request, pk=None, objs=None):
-        community = Community.objects.get(pk=pk)
-        members = community.members.all()
-        page = self.paginate_queryset(members)
-        if page is None:
-            serializer = MemberSerializer(
-                objs, context={'request': request}, many=True
-            )
-            return Response(serializer.data)
-        else:
-            serializer = MemberSerializer(
-                page, context={'request': request}, many=True
-            )
-            return self.get_paginated_response(serializer.data)"""
 
 
 class FavoritesViewSet(ModelViewSet):
