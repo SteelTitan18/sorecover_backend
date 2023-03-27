@@ -29,7 +29,7 @@ class MyObtainTokenPairView(TokenObtainPairView):
         token = response.data['access']
         username = request.data.get('username', None)
         user = Member.objects.get(username=username)
-        return Response({'name': user.username, 'email': user.email, 'token': token})
+        return Response({'id': user.id, 'username': user.username, 'email': user.email, 'token': token})
 
 
 class VersionViewSet(ModelViewSet):
