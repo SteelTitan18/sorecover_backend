@@ -16,8 +16,8 @@ class Member(User):
         SUPERVISOR = 'SV', 'Supervisor'
 
     phone_number = PhoneNumberField(verbose_name="Numéro de téléphone", unique=True)
-    city = models.fields.CharField(verbose_name="Ville", max_length=200)
-    neighborhood = models.fields.CharField(verbose_name="Quartier", max_length=200)
+    city = models.fields.TextField(verbose_name="Ville", max_length=200)
+    neighborhood = models.fields.TextField(verbose_name="Quartier", max_length=200)
     type = models.CharField(verbose_name="Type d'utilisateur", max_length=2, choices=MemberType.choices,
                             default=MemberType.SIMPLE)
     created = models.DateTimeField(auto_now_add=True)
@@ -187,7 +187,6 @@ def password_validation(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Community)
 def create_comity(sender, instance, **kwargs):
-    # Créer le comité directeur pour le nouveau groupe
     if not instance.pk:
         comity = Comity.objects.create(community=instance)
         comity.members.set([instance.creator.id])
@@ -197,9 +196,7 @@ def create_comity(sender, instance, **kwargs):
 @receiver(pre_save, sender=Community)
 def create_comity_validation(sender, instance, **kwargs):
     if instance.pk:
-        # Si l'objet existe déjà, récupérez l'objet original depuis la base de données
         original = Community.objects.get(pk=instance.pk)
-        # Si l'attribut 'status' a changé, créez un nouvel objet 'MyModel2'
         if (original.status != instance.status) and (original.status == Community.CommunityState.DRAFT):
             user = Admin.objects.get(pk=current_user.value.id)
             comity_validation = CommunityValidation.objects.create(community=instance,
