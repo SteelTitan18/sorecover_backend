@@ -17,7 +17,7 @@ class Member(User):
 
     phone_number = PhoneNumberField(verbose_name="Numéro de téléphone", unique=True)
     city = models.fields.TextField(verbose_name="Ville", max_length=200)
-    neighborhood = models.fields.TextField(verbose_name="Quartier", max_length=200)
+    neighborhood = models.fields.TextField(verbose_name="Quartier", max_length=200, blank=True, null=True)
     type = models.CharField(verbose_name="Type d'utilisateur", max_length=2, choices=MemberType.choices,
                             default=MemberType.SIMPLE)
     created = models.DateTimeField(auto_now_add=True)
