@@ -1,3 +1,5 @@
+from django.http import HttpResponse
+from django.views import View
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -29,7 +31,7 @@ class MyObtainTokenPairView(TokenObtainPairView):
         token = response.data['access']
         username = request.data.get('username', None)
         user = Member.objects.get(username=username)
-        return Response({'id': user.id, 'username': user.username, 'email': user.email, 'token': token})
+        return Response({'id': user.id, 'username': user.username, 'type': user.type, 'email': user.email, 'token': token})
 
 
 class VersionViewSet(ModelViewSet):
@@ -126,9 +128,18 @@ class MessageViewSet(ModelViewSet):
             return self.queryset
 
 
-"""class CommunityMembers(ModelViewSet):
-    serializer_class = MemberSerializer
+"""class CommunityIntegration(ModelViewSet):
+    serializer_class = CommunityMember
 
     def get_queryset(self):
-        return Member.objects.filter(c)
+        return Community.objects.all()
+
+    def post(self, request):
+        community_id = request.data['community_id']
+        member_id = request.data['member_id']
+
+        community = Community.objects.get(pk=community_id)
+        member = Member.objects.get(pk=member_id)
+        community.members.append(member)
+        community.save()
 """
