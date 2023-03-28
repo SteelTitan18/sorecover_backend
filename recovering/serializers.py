@@ -107,3 +107,17 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ['author', 'content', 'saloon']
+
+
+"""class CommunityIntegration(serializers.ModelSerializer):
+    class Meta:
+        model = Community
+        fields = ['id']
+
+
+class CommunityMember(serializers.ModelSerializer):
+    task_extendeds = CommunityIntegration
+
+    class Meta:
+        model = Member
+        fields = ['id']"""

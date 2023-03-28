@@ -141,5 +141,4 @@ class MessageViewSet(ModelViewSet):
         community = Community.objects.get(pk=community_id)
         member = Member.objects.get(pk=member_id)
         community.members.append(member)
-        community.save()
-"""
+        community.save()"""
