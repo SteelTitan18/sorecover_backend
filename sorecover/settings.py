@@ -20,7 +20,7 @@ env = environ.Env()
 environ.Env.read_env(env_file=str(BASE_DIR / "sorecover" / ".env"))
 
 SECRET_KEY = "django-insecure-*q-&opu4xizt^+cy92#fk!ov2d+531ev1e+6-c*daa=rjmttat"
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -122,7 +122,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnorReadOnly'
     ],"""
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.simplejwt.authentication.JWTAuthentication'
         'knox.auth.TokenAuthentication',
     ]
