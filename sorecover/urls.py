@@ -16,7 +16,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from knox import views as knox_views
 
 from recovering.views import *
 
@@ -38,8 +37,8 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
-    path('api/login/', LoginAPI.as_view(), name='login'),
-    path('api/logout/', knox_views.LogoutView.as_view(), name='logout'),
+    path('api/login/', MyObtainTokenPairView.as_view(), name='login'),
+    #path('api/logout/', LogoutView.as_view(), name='logout'),
     path('api/community/<int:community_id>/members', MemberViewSet.as_view({'get': 'list'}), name='community_members'),
     path('api/community/<int:community_id>/saloons', SaloonViewSet.as_view({'get': 'list'}), name='community_saloons'),
     path('api/saloon/<int:saloon_id>/messages', MessageViewSet.as_view({'get': 'list'}), name='saloon_messages'),

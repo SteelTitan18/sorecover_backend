@@ -1,6 +1,4 @@
-from django.contrib.auth import login
-from rest_framework import status, permissions
-from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework import status
 from rest_framework.decorators import api_view, renderer_classes, parser_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -10,7 +8,6 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from knox.views import LoginView as KnoxLoginView
 
 from recovering.serializers import *
 
@@ -29,7 +26,7 @@ class MemberViewSet(ModelViewSet):
             return self.queryset
 
 
-"""class MyObtainTokenPairView(TokenObtainPairView):
+class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = MyTokenObtainPairSerializer
 
@@ -55,18 +52,7 @@ class LogoutView(APIView):
 
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)"""
-
-
-class LoginAPI(KnoxLoginView):
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request, format=None):
-        serializer = AuthTokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        login(request, user)
-        return super(LoginAPI, self).post(request, format=None)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class VersionViewSet(ModelViewSet):
@@ -166,6 +152,7 @@ class MessageViewSet(ModelViewSet):
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
 def community_integration(request, member_id, community_id):
+
     if request.method == 'GET':
         community = Community.objects.get(pk=community_id)
         member = Member.objects.get(pk=member_id)
