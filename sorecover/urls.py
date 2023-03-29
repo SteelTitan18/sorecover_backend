@@ -32,7 +32,6 @@ router.register('community_validation', CommunityValidationViewSet, basename='co
 router.register('favorites', FavoritesViewSet, basename='favorites')
 router.register('final_version', FinalVersionViewSet, basename='final_version')
 router.register('message', MessageViewSet, basename='message')
-# router.register('community_integration', CommunityIntegration, basename='community_integration')
 
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
@@ -42,5 +41,8 @@ urlpatterns = [
     path('api/community/<int:community_id>/members', MemberViewSet.as_view({'get': 'list'}), name='community_members'),
     path('api/community/<int:community_id>/saloons', SaloonViewSet.as_view({'get': 'list'}), name='community_saloons'),
     path('api/saloon/<int:saloon_id>/messages', MessageViewSet.as_view({'get': 'list'}), name='saloon_messages'),
-    # path('api/community_integration', CommunityIntegration.as_view(), name='community_validation')
+    path('api/community_integration/<int:community_id>/<int:member_id>/', community_integration,
+         name='community_integration'),
+path('api/community_pull_out/<int:community_id>/<int:member_id>/', community_pull_out,
+         name='community_pull_out')
 ]

@@ -1,5 +1,3 @@
-from abc import ABC
-
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from recovering.models import *
@@ -28,30 +26,6 @@ class MemberSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'password', 'type', 'first_name', 'last_name',
                   'created', 'email', 'city', 'neighborhood',
                   'phone_number']
-
-
-"""class RegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Member
-        fields = ['id', 'username', 'password', 'type', 'first_name', 'last_name',
-                  'created', 'email', 'city', 'neighborhood',
-                  'phone_number']
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        member = Member.objects.create(
-            username=validated_data['username'],
-            password=validated_data['password'],
-            type=validated_data['type'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            email=validated_data['email'],
-            city=validated_data['city'],
-            neighborhood=validated_data['neighborhood'],
-            phone_number=validated_data['phone_number']
-        )
-
-        return member"""
 
 
 class AdminSerializer(serializers.ModelSerializer):
@@ -107,17 +81,3 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ['author', 'content', 'saloon']
-
-
-"""class CommunityIntegration(serializers.ModelSerializer):
-    class Meta:
-        model = Community
-        fields = ['id']
-
-
-class CommunityMember(serializers.ModelSerializer):
-    task_extendeds = CommunityIntegration
-
-    class Meta:
-        model = Member
-        fields = ['id']"""

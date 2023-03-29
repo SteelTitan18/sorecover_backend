@@ -1,6 +1,6 @@
-from django.http import HttpResponse
-from django.views import View
+from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.permissions import AllowAny
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -31,7 +31,8 @@ class MyObtainTokenPairView(TokenObtainPairView):
         token = response.data['access']
         username = request.data.get('username', None)
         user = Member.objects.get(username=username)
-        return Response({'id': user.id, 'username': user.username, 'type': user.type, 'email': user.email, 'token': token})
+        return Response(
+            {'id': user.id, 'username': user.username, 'type': user.type, 'email': user.email, 'token': token})
 
 
 class VersionViewSet(ModelViewSet):
@@ -128,17 +129,45 @@ class MessageViewSet(ModelViewSet):
             return self.queryset
 
 
-"""class CommunityIntegration(ModelViewSet):
-    serializer_class = CommunityMember
+@api_view(('GET',))
+@renderer_classes((JSONRenderer,))
+def community_integration(request, member_id, community_id):
 
-    def get_queryset(self):
-        return Community.objects.all()
-
-    def post(self, request):
-        community_id = request.data['community_id']
-        member_id = request.data['member_id']
-
+    if request.method == 'GET':
         community = Community.objects.get(pk=community_id)
         member = Member.objects.get(pk=member_id)
-        community.members.append(member)
-        community.save()"""
+
+        serializer = CommunitySerializer(community)
+
+        community.members.add(member)
+
+        return Response(serializer.data)
+
+
+@api_view(('GET',))
+@renderer_classes((JSONRenderer,))
+def community_integration(request, member_id, community_id):
+
+    if request.method == 'GET':
+        community = Community.objects.get(pk=community_id)
+        member = Member.objects.get(pk=member_id)
+
+        serializer = CommunitySerializer(community)
+
+        community.members.add(member)
+
+        return Response(serializer.data)
+
+
+@api_view(('GET',))
+@renderer_classes((JSONRenderer,))
+def community_pull_out(request, member_id, community_id):
+    if request.method == 'GET':
+        community = Community.objects.get(pk=community_id)
+        member = Member.objects.get(pk=member_id)
+
+        serializer = CommunitySerializer(community)
+
+        community.members.remove(member)
+
+        return Response(serializer.data)
