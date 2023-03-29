@@ -144,13 +144,12 @@ def community_integration(request, member_id, community_id):
         return Response(serializer.data)
 
 
-@api_view(('GET',))
+@api_view(('POST',))
 @renderer_classes((JSONRenderer,))
-def community_integration(request, member_id, community_id):
-
-    if request.method == 'GET':
-        community = Community.objects.get(pk=community_id)
-        member = Member.objects.get(pk=member_id)
+def community_integration(request):
+    if request.method == 'POST':
+        community = Community.objects.get(pk=request.POST.get("community_id"))
+        member = Member.objects.get(pk=request.POST.get("member_id"))
 
         serializer = CommunitySerializer(community)
 
@@ -159,12 +158,12 @@ def community_integration(request, member_id, community_id):
         return Response(serializer.data)
 
 
-@api_view(('GET',))
+@api_view(('POST',))
 @renderer_classes((JSONRenderer,))
-def community_pull_out(request, member_id, community_id):
-    if request.method == 'GET':
-        community = Community.objects.get(pk=community_id)
-        member = Member.objects.get(pk=member_id)
+def community_pull_out(request):
+    if request.method == 'POST':
+        community = Community.objects.get(pk=request.POST.get("community_id"))
+        member = Member.objects.get(pk=request.POST.get("member_id"))
 
         serializer = CommunitySerializer(community)
 
