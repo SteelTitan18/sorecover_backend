@@ -1,4 +1,8 @@
-from rest_framework import status
+from django.contrib.auth import authenticate, login
+from rest_framework import status, permissions
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import api_view, renderer_classes, parser_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -6,8 +10,9 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, Token
 from rest_framework_simplejwt.views import TokenObtainPairView
+from knox.views import LoginView as KnoxLoginView
 
 from recovering.serializers import *
 
@@ -26,6 +31,17 @@ class MemberViewSet(ModelViewSet):
             return self.queryset
 
 
+"""class LoginView(KnoxLoginView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+        user = Member.objects.get(username=username)
+        login(request, user)
+        return super(LoginView, self).post(request, format=None)"""
+
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = MyTokenObtainPairSerializer
@@ -35,24 +51,35 @@ class MyObtainTokenPairView(TokenObtainPairView):
         token = response.data['access']
         refresh = response.data['refresh']
         username = request.data.get('username', None)
+        password = request.data.get('password', None)
+        member = authenticate(request, username=username, password=password)
+
+        if member is not None:
+            login(request, member)
         user = Member.objects.get(username=username)
+
         return Response(
-            {'id': user.id, 'username': user.username, 'type': user.type, 'email': user.email, 'token': token,
-             'refresh': refresh})
+            {'id': user.id, 'username': user.username, 'type': user.type, 'email': user.email, 'token': token})
 
 
-class LogoutView(APIView):
+"""class LoginView(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+        member = Member.objects.get(username=username)
+        token, created = Token.objects.get_or_create(user=member)
+        return Response({'member_id': member.id, 'token': token})"""
+
+
+"""class LogoutView(APIView):
+    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
-        try:
-            refresh_token = request.data["refresh_token"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-
-            return Response(status=status.HTTP_205_RESET_CONTENT)
-        except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, format=None):
+        token = Token.objects.get(user=request.user)
+        token.delete()
+        return Response({"message": "User logged out successfully."})"""
 
 
 class VersionViewSet(ModelViewSet):
@@ -152,7 +179,6 @@ class MessageViewSet(ModelViewSet):
 @api_view(('GET',))
 @renderer_classes((JSONRenderer,))
 def community_integration(request, member_id, community_id):
-
     if request.method == 'GET':
         community = Community.objects.get(pk=community_id)
         member = Member.objects.get(pk=member_id)

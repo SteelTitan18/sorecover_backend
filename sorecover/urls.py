@@ -24,8 +24,8 @@ router = routers.SimpleRouter()
 router.register('admin', AdminViewSet, basename='admin')
 router.register('member', MemberViewSet, basename='member')
 router.register('version', VersionViewSet, basename='version')
-router.register('community', CommunityViewSet, basename='community')
-router.register('validated_community', ValidatedCommunityViewSet, basename='validated_community')
+router.register('community', ValidatedCommunityViewSet, basename='community')
+router.register('all_communities', CommunityViewSet, basename='all_community')
 router.register('comity', ComityViewSet, basename='comity')
 router.register('saloon', SaloonViewSet, basename='saloon')
 router.register('community_validation', CommunityValidationViewSet, basename='community_validation')
@@ -38,7 +38,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
     path('api/login/', MyObtainTokenPairView.as_view(), name='login'),
-    #path('api/logout/', LogoutView.as_view(), name='logout'),
+    # path('api/logout/', LogoutView.as_view(), name='logout'),
     path('api/community/<int:community_id>/members', MemberViewSet.as_view({'get': 'list'}), name='community_members'),
     path('api/community/<int:community_id>/saloons', SaloonViewSet.as_view({'get': 'list'}), name='community_saloons'),
     path('api/saloon/<int:saloon_id>/messages', MessageViewSet.as_view({'get': 'list'}), name='saloon_messages'),

@@ -124,7 +124,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.simplejwt.authentication.JWTAuthentication'
-        'knox.auth.TokenAuthentication',
+        # 'knox.auth.TokenAuthentication',
     ]
 }
 
