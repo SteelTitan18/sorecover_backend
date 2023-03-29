@@ -1,8 +1,12 @@
-from rest_framework.decorators import api_view, renderer_classes
-from rest_framework.permissions import AllowAny
+from rest_framework import status
+from rest_framework.decorators import api_view, renderer_classes, parser_classes
+from rest_framework.parsers import JSONParser
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from recovering.serializers import *
@@ -29,10 +33,26 @@ class MyObtainTokenPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super(MyObtainTokenPairView, self).post(request, *args, **kwargs)
         token = response.data['access']
+        refresh = response.data['refresh']
         username = request.data.get('username', None)
         user = Member.objects.get(username=username)
         return Response(
-            {'id': user.id, 'username': user.username, 'type': user.type, 'email': user.email, 'token': token})
+            {'id': user.id, 'username': user.username, 'type': user.type, 'email': user.email, 'token': token,
+             'refresh': refresh})
+
+
+class LogoutView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class VersionViewSet(ModelViewSet):
@@ -146,10 +166,11 @@ def community_integration(request, member_id, community_id):
 
 @api_view(('POST',))
 @renderer_classes((JSONRenderer,))
+@parser_classes([JSONParser])
 def community_integration(request):
     if request.method == 'POST':
-        community = Community.objects.get(pk=request.POST.get("community_id"))
-        member = Member.objects.get(pk=request.POST.get("member_id"))
+        community = Community.objects.get(pk=request.data["community_id"])
+        member = Member.objects.get(pk=request.data["member_id"])
 
         serializer = CommunitySerializer(community)
 
@@ -159,11 +180,12 @@ def community_integration(request):
 
 
 @api_view(('POST',))
+@parser_classes([JSONParser])
 @renderer_classes((JSONRenderer,))
 def community_pull_out(request):
     if request.method == 'POST':
-        community = Community.objects.get(pk=request.POST.get("community_id"))
-        member = Member.objects.get(pk=request.POST.get("member_id"))
+        community = Community.objects.get(pk=request.data["community_id"])
+        member = Member.objects.get(pk=request.data["member_id"])
 
         serializer = CommunitySerializer(community)
 
