@@ -198,7 +198,7 @@ def community_integration(request):
         community = Community.objects.get(pk=request.data["community_id"])
         member = Member.objects.get(pk=request.data["member_id"])
 
-        serializer = CommunitySerializer(community)
+        serializer = ValidatedCommunitySerializer(community)
 
         community.members.add(member)
 
@@ -213,7 +213,7 @@ def community_pull_out(request):
         community = Community.objects.get(pk=request.data["community_id"])
         member = Member.objects.get(pk=request.data["member_id"])
 
-        serializer = CommunitySerializer(community)
+        serializer = ValidatedCommunitySerializer(community)
 
         community.members.remove(member)
 
