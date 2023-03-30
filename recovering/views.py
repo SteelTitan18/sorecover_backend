@@ -42,6 +42,7 @@ class MemberViewSet(ModelViewSet):
         login(request, user)
         return super(LoginView, self).post(request, format=None)"""
 
+
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = MyTokenObtainPairSerializer
@@ -70,7 +71,6 @@ class MyObtainTokenPairView(TokenObtainPairView):
         member = Member.objects.get(username=username)
         token, created = Token.objects.get_or_create(user=member)
         return Response({'member_id': member.id, 'token': token})"""
-
 
 """class LogoutView(APIView):
     authentication_classes = (TokenAuthentication,)

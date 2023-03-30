@@ -53,8 +53,8 @@ class Community(models.Model):
 
 
 @receiver(post_save, sender=Community)
-def set_creator(sender, instance, **kwargs):
-    instance.creator = Member.objects.get(pk=current_user.value.id)
+def add_first_member(sender, instance, **kwargs):
+    instance.members.add(Member.objects.get(pk=instance.creator))
 
 
 class Comity(models.Model):
@@ -103,10 +103,10 @@ class Version(models.Model):
         return self.title
 
 
-@receiver(post_save, sender=Version)
+"""@receiver(post_save, sender=Version)
 def set_author(sender, instance, **kwargs):
     if not instance.pk:
-        instance.author = Member.objects.get(pk=current_user.value.id)
+        instance.author = Member.objects.get(pk=current_user.value.id)"""
 
 
 @receiver(post_save, sender=Version)
@@ -143,9 +143,9 @@ class Message(models.Model):
         return self.content
 
 
-@receiver(post_save, sender=Message)
+"""@receiver(post_save, sender=Message)
 def set_message_author(sender, instance, **kwargs):
-    instance.author = Member.objects.get(pk=current_user.value.id)
+    instance.author = Member.objects.get(pk=current_user.value.id)"""
 
 
 class FinalVersion(models.Model):
