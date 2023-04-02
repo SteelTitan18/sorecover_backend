@@ -58,7 +58,7 @@ ROOT_URLCONF = "sorecover.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ['templates/'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -163,3 +163,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
 ]
+
+CSRF_TRUSTED_ORIGINS = ['https://web-production-54ee.up.railway.app']
+
+# CORS_ORIGIN_WHITELIST = ['https://web-production-54ee.up.railway.app']
