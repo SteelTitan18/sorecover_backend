@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "corsheaders",
     'rest_framework.authtoken',
-    'knox'
+    'knox',
+    'fontawesomefree',
 ]
 
 MIDDLEWARE = [
@@ -122,9 +123,11 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnorReadOnly'
     ],"""
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.simplejwt.authentication.JWTAuthentication'
         # 'knox.auth.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ]
 }
 
