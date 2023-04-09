@@ -1,23 +1,38 @@
 from django.contrib.auth import authenticate, login
-from rest_framework import status, permissions
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from rest_framework.authtoken.views import ObtainAuthToken
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.views.generic import ListView, DetailView
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import api_view, renderer_classes, parser_classes
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.tokens import RefreshToken, Token
 from rest_framework_simplejwt.views import TokenObtainPairView
-from knox.views import LoginView as KnoxLoginView
-
+from recovering.forms import CommunityForm
 from recovering.serializers import *
 
 
 # Create your views here.
+class IsAdminOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        if request.method in ['POST', 'GET']:
+            return True
+        elif request.method in ['PUT', 'DELETE']:
+            return request.user and request.user.is_staff
+        return False
+
+
+class IsAdminOrPostOnly(BasePermission):
+    def has_permission(self, request, view):
+        if request.method in ['POST']:
+            return True
+        elif request.method in ['GET', 'PUT', 'DELETE']:
+            return request.user and request.user.is_staff
+        return False
+
+
 class MemberViewSet(ModelViewSet):
     serializer_class = MemberSerializer
     queryset = Member.objects.all()
@@ -29,6 +44,9 @@ class MemberViewSet(ModelViewSet):
                 return Community.objects.get(pk=community_id).members
         else:
             return self.queryset
+
+    def __str__(self):
+        return self.username
 
 
 """class LoginView(KnoxLoginView):
@@ -57,10 +75,17 @@ class MyObtainTokenPairView(TokenObtainPairView):
 
         if member is not None:
             login(request, member)
-        user = Member.objects.get(username=username)
 
-        return Response(
-            {'id': user.id, 'username': user.username, 'type': user.type, 'email': user.email, 'token': token})
+        try:
+            user = Member.objects.get(username=username)
+            return Response(
+                {'id': user.id, 'username': user.username, 'type': user.type, 'email': user.email, 'token': token,
+                 'refresh': refresh})
+        except:
+            user = User.objects.get(username=username)
+            return Response(
+                {'id': user.id, 'username': user.username, 'email': user.email, 'token': token,
+                 'refresh': refresh})
 
 
 """class LoginView(ObtainAuthToken):
@@ -97,6 +122,8 @@ class AdminViewSet(ModelViewSet):
 
 
 class CommunityViewSet(ModelViewSet):
+    # authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAdminOrPostOnly]
     serializer_class = CommunitySerializer
 
     def get_queryset(self):
@@ -104,6 +131,7 @@ class CommunityViewSet(ModelViewSet):
 
 
 class ValidatedCommunityViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = ValidatedCommunitySerializer
 
     def get_queryset(self):
@@ -112,6 +140,7 @@ class ValidatedCommunityViewSet(ModelViewSet):
 
 class ComityViewSet(ModelViewSet):
     serializer_class = ComitySerializer
+    permission_classes = [IsAdminOrPostOnly]
 
     def get_queryset(self):
         return Comity.objects.all()
@@ -119,6 +148,8 @@ class ComityViewSet(ModelViewSet):
 
 class SaloonViewSet(ModelViewSet):
     serializer_class = SaloonSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
     queryset = Saloon.objects.all()
 
     def get_queryset(self):
@@ -132,6 +163,7 @@ class SaloonViewSet(ModelViewSet):
 
 class CommunityValidationViewSet(ModelViewSet):
     serializer_class = CommunityValidationSerializer
+    permission_classes = [IsAdminOrPostOnly]
 
     def get_queryset(self):
         return CommunityValidation.objects.all()
@@ -139,6 +171,7 @@ class CommunityValidationViewSet(ModelViewSet):
 
 class FavoritesViewSet(ModelViewSet):
     serializer_class = FavoritesSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         queryset = Favorites.objects.all()
@@ -158,6 +191,7 @@ class FavoritesViewSet(ModelViewSet):
 
 class FinalVersionViewSet(ModelViewSet):
     serializer_class = FinalVersionSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         return FinalVersion.objects.all()
@@ -218,3 +252,29 @@ def community_pull_out(request):
         community.members.remove(member)
 
         return Response(serializer.data)
+
+
+class CommunityListView(ListView):
+    model = Community
+    context_object_name = 'my_favorite_communities'
+
+
+def community_change(request, pk):
+    if request.method == 'POST':
+        community = Community.objects.get(pk=pk)
+
+        form = CommunityForm(request.POST or None, instance=community)
+
+        if form.is_valid():
+            form.save()
+            return redirect('community-list')
+    else:
+        form = CommunityForm()
+
+        return render(request, 'recovering/community_change.html', {'form': form})
+
+
+def community_details(request, pk):
+    community = Community.objects.get(id=pk)
+    serializer = CommunitySerializer(community)
+    return JsonResponse(serializer.data)

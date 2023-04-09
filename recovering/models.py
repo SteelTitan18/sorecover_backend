@@ -153,7 +153,7 @@ class FinalVersion(models.Model):
     saloon = models.ForeignKey(Saloon, related_name='terminate_saloon', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.saloon.name
+        return self.saloon.title
 
 
 @receiver(pre_save, sender=FinalVersion)

@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView
 from rest_framework import routers
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from recovering.views import *
 
@@ -37,7 +39,9 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
-    path('api/login/', MyObtainTokenPairView.as_view(), name='login'),
+    # path('api/login/', MyObtainTokenPairView.as_view(), name='login'),
+    path('api/login/', MyObtainTokenPairView.as_view(), name='token_obtain_pair'),
+    path('api/login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # path('api/logout/', LogoutView.as_view(), name='logout'),
     path('api/community/<int:community_id>/members', MemberViewSet.as_view({'get': 'list'}), name='community_members'),
     path('api/community/<int:community_id>/saloons', SaloonViewSet.as_view({'get': 'list'}), name='community_saloons'),
@@ -45,5 +49,9 @@ urlpatterns = [
     path('api/community_integration/', community_integration,
          name='community_integration'),
     path('api/community_pull_out/', community_pull_out,
-         name='community_pull_out')
+         name='community_pull_out'),
+    # path('admin/', TemplateView.as_view(template_name='recovering/main.html')),
+    # path('admin/community/', CommunityListView.as_view(), name='community-list'),
+    # path('admin/community/<int:pk>/', community_details, name='community-detail'),
+    # path('admin/community/<int:pk>/change/', community_change, name='community-change')
 ]
