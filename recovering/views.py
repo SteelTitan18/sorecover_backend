@@ -37,6 +37,8 @@ class MemberViewSet(ModelViewSet):
     serializer_class = MemberSerializer
     queryset = Member.objects.all()
 
+    permission_classes = [IsAdminOrPostOnly]
+
     def get_queryset(self):
         if 'community_id' in self.kwargs:
             community_id = self.kwargs['community_id']
@@ -109,6 +111,7 @@ class MyObtainTokenPairView(TokenObtainPairView):
 
 class VersionViewSet(ModelViewSet):
     serializer_class = VersionSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         return Version.objects.all()
