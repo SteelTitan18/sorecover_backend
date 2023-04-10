@@ -10,7 +10,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
-from recovering.forms import CommunityForm
+# from recovering.forms import CommunityForm
 from recovering.serializers import *
 
 
@@ -259,7 +259,7 @@ class CommunityListView(ListView):
     context_object_name = 'my_favorite_communities'
 
 
-def community_change(request, pk):
+"""def community_change(request, pk):
     if request.method == 'POST':
         community = Community.objects.get(pk=pk)
 
@@ -271,7 +271,7 @@ def community_change(request, pk):
     else:
         form = CommunityForm()
 
-        return render(request, 'recovering/community_change.html', {'form': form})
+        return render(request, 'recovering/community_change.html', {'form': form})"""
 
 
 def community_details(request, pk):
