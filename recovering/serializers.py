@@ -23,7 +23,7 @@ class VersionSerializer(serializers.ModelSerializer):
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ['id', 'username', 'password', 'type', 'first_name', 'last_name',
+        fields = ['username', 'password', 'type', 'first_name', 'last_name',
                   'created', 'email', 'city', 'neighborhood',
                   'phone_number']
 
@@ -31,14 +31,14 @@ class MemberSerializer(serializers.ModelSerializer):
 class AdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Admin
-        fields = ['id', 'username', 'first_name', 'last_name', 'password',
+        fields = ['username', 'first_name', 'last_name', 'password',
                   'created', 'email']
 
 
 class CommunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Community
-        fields = ['id', 'creator', 'name', 'status', 'created', 'members']
+        fields = ['creator', 'name', 'status', 'created', 'members']
 
 
 class ValidatedCommunitySerializer(serializers.ModelSerializer):
