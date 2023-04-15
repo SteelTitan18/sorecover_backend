@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.generic import ListView, DetailView
+from rest_framework import status, permissions
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import api_view, renderer_classes, parser_classes
 from rest_framework.parsers import JSONParser
@@ -10,34 +11,35 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
-# from recovering.forms import CommunityForm
+from recovering.forms import CommunityForm
 from recovering.serializers import *
 
 
 # Create your views here.
-class IsAdminOrReadOnly(BasePermission):
+class IsCreatorOrAdmin(BasePermission):
     def has_permission(self, request, view):
-        if request.method in ['POST', 'GET']:
+        if request.user.is_authenticated:
             return True
-        elif request.method in ['PUT', 'DELETE']:
-            return request.user and request.user.is_staff
-        return False
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.creator.username == request.user.username or request.user.is_staff
 
 
-class IsAdminOrPostOnly(BasePermission):
-    def has_permission(self, request, view):
+"""class IsCreator(BasePermission):
+    def has_permission(self, request, view, community):
         if request.method in ['POST']:
             return True
-        elif request.method in ['GET', 'PUT', 'DELETE']:
-            return request.user and request.user.is_staff
-        return False
+        elif request."""
 
 
 class MemberViewSet(ModelViewSet):
     serializer_class = MemberSerializer
     queryset = Member.objects.all()
 
-    permission_classes = [IsAdminOrPostOnly]
+    permission_classes = [IsCreatorOrAdmin]
 
     def get_queryset(self):
         if 'community_id' in self.kwargs:
@@ -90,28 +92,9 @@ class MyObtainTokenPairView(TokenObtainPairView):
                  'refresh': refresh})
 
 
-"""class LoginView(ObtainAuthToken):
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data['username']
-        member = Member.objects.get(username=username)
-        token, created = Token.objects.get_or_create(user=member)
-        return Response({'member_id': member.id, 'token': token})"""
-
-"""class LogoutView(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request, format=None):
-        token = Token.objects.get(user=request.user)
-        token.delete()
-        return Response({"message": "User logged out successfully."})"""
-
-
 class VersionViewSet(ModelViewSet):
     serializer_class = VersionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsCreatorOrAdmin]
 
     def get_queryset(self):
         return Version.objects.all()
@@ -126,7 +109,7 @@ class AdminViewSet(ModelViewSet):
 
 class CommunityViewSet(ModelViewSet):
     # authentication_classes = [BasicAuthentication]
-    permission_classes = [IsAdminOrPostOnly]
+    permission_classes = [IsCreatorOrAdmin]
     serializer_class = CommunitySerializer
 
     def get_queryset(self):
@@ -134,7 +117,7 @@ class CommunityViewSet(ModelViewSet):
 
 
 class ValidatedCommunityViewSet(ModelViewSet):
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsCreatorOrAdmin]
     serializer_class = ValidatedCommunitySerializer
 
     def get_queryset(self):
@@ -143,7 +126,7 @@ class ValidatedCommunityViewSet(ModelViewSet):
 
 class ComityViewSet(ModelViewSet):
     serializer_class = ComitySerializer
-    permission_classes = [IsAdminOrPostOnly]
+    permission_classes = [IsCreatorOrAdmin]
 
     def get_queryset(self):
         return Comity.objects.all()
@@ -151,7 +134,7 @@ class ComityViewSet(ModelViewSet):
 
 class SaloonViewSet(ModelViewSet):
     serializer_class = SaloonSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsCreatorOrAdmin]
 
     queryset = Saloon.objects.all()
 
@@ -166,7 +149,7 @@ class SaloonViewSet(ModelViewSet):
 
 class CommunityValidationViewSet(ModelViewSet):
     serializer_class = CommunityValidationSerializer
-    permission_classes = [IsAdminOrPostOnly]
+    permission_classes = [IsCreatorOrAdmin]
 
     def get_queryset(self):
         return CommunityValidation.objects.all()
@@ -174,7 +157,7 @@ class CommunityValidationViewSet(ModelViewSet):
 
 class FavoritesViewSet(ModelViewSet):
     serializer_class = FavoritesSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsCreatorOrAdmin]
 
     def get_queryset(self):
         queryset = Favorites.objects.all()
@@ -194,7 +177,7 @@ class FavoritesViewSet(ModelViewSet):
 
 class FinalVersionViewSet(ModelViewSet):
     serializer_class = FinalVersionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsCreatorOrAdmin]
 
     def get_queryset(self):
         return FinalVersion.objects.all()
@@ -203,6 +186,7 @@ class FinalVersionViewSet(ModelViewSet):
 class MessageViewSet(ModelViewSet):
     serializer_class = MessageSerializer
     queryset = Message.objects.all().order_by('created')
+    permission_classes = [IsCreatorOrAdmin]
 
     def get_queryset(self):
         if 'saloon_id' in self.kwargs:
@@ -262,19 +246,19 @@ class CommunityListView(ListView):
     context_object_name = 'my_favorite_communities'
 
 
-"""def community_change(request, pk):
+def community_change(request, pk):
     if request.method == 'POST':
         community = Community.objects.get(pk=pk)
-
-        form = CommunityForm(request.POST or None, instance=community)
+        form = CommunityForm(request.POST)
 
         if form.is_valid():
             form.save()
             return redirect('community-list')
     else:
-        form = CommunityForm()
+        community = Community.objects.get(pk=pk)
+        form = CommunityForm(instance=community)
 
-        return render(request, 'recovering/community_change.html', {'form': form})"""
+        return render(request, 'recovering/community_change.html', {'form': form})
 
 
 def community_details(request, pk):

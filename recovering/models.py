@@ -13,7 +13,6 @@ class Member(User):
     class MemberType(models.TextChoices):
         SIMPLE = 'SP', 'Simple'
         PREMIUM = 'PM', 'Premium'
-        SUPERVISOR = 'SV', 'Supervisor'
 
     phone_number = PhoneNumberField(verbose_name="Numéro de téléphone", unique=True)
     city = models.fields.TextField(verbose_name="Ville", max_length=200)
@@ -27,6 +26,11 @@ class Member(User):
 
 
 class Admin(User):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_staff = True
+
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -45,6 +49,8 @@ class Community(models.Model):
                               default=CommunityState.DRAFT)
     creator = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='community_creator',
                                 limit_choices_to={'type': Member.MemberType.PREMIUM})
+    supervisor = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='community_supervisor')
+    description = models.TextField(verbose_name="Description", max_length=300)
     members = models.ManyToManyField(Member, related_name='community_members')
     created = models.DateTimeField(auto_now_add=True)
 
@@ -72,10 +78,10 @@ class Saloon(models.Model):
         FINISH = 'FN', 'Finish'
 
     title = models.CharField(max_length=100, verbose_name='title')
+    description = models.TextField(verbose_name="Description", max_length=300)
     author = models.ForeignKey(Member, related_name='version_author', on_delete=models.CASCADE)
     supervisor = models.ForeignKey(Member, related_name='saloon_supervisor',
-                                   on_delete=models.CASCADE,
-                                   limit_choices_to={'type': Member.MemberType.SUPERVISOR})
+                                   on_delete=models.CASCADE)
     members = models.ManyToManyField(Member, related_name='saloon_members')
     state = models.CharField(max_length=2, choices=SaloonState.choices, default=SaloonState.BEGINNING)
     created = models.DateTimeField(auto_now_add=True)
@@ -178,16 +184,21 @@ def password_validation(sender, instance, **kwargs):
             instance.set_password(instance.password)
 
 
-@receiver(pre_save, sender=Admin)
+"""@receiver(post_save, sender=Admin)
 def password_validation(sender, instance, **kwargs):
-    original = Admin.objects.get(pk=instance.pk)
-    if instance.password != original.password:
-        instance.set_password(instance.password)
+    try:
+        original = Admin.objects.get(pk=instance.pk)
+        if instance.password != original.password:
+            instance.set_password(instance.password)
+    except:
+        instance.set_password(instance.password)"""
 
 
 @receiver(post_save, sender=Community)
 def create_comity(sender, instance, **kwargs):
-    if not instance.pk:
+    try:
+        verification = Comity.objects.get(community=instance)
+    except:
         comity = Comity.objects.create(community=instance)
         comity.members.set([instance.creator.id])
         comity.save()
@@ -195,13 +206,14 @@ def create_comity(sender, instance, **kwargs):
 
 @receiver(pre_save, sender=Community)
 def create_comity_validation(sender, instance, **kwargs):
-    if instance.pk:
-        original = Community.objects.get(pk=instance.pk)
-        if (original.status != instance.status) and (original.status == Community.CommunityState.DRAFT):
-            user = Admin.objects.get(pk=current_user.value.id)
-            comity_validation = CommunityValidation.objects.create(community=instance,
-                                                                   validator=user)
-            # comity_validation.save()
+    try:
+        user = Admin.objects.get(pk=current_user.value.id)
+        if instance.pk:
+            original = Community.objects.get(pk=instance.pk)
+            if (original.status != instance.status) and (original.status == Community.CommunityState.DRAFT):
+                CommunityValidation.objects.create(community=instance, validator=user)
+    except:
+        pass
 
 
 class CurrentUserMiddleware:

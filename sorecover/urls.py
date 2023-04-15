@@ -50,8 +50,8 @@ urlpatterns = [
          name='community_integration'),
     path('api/community_pull_out/', community_pull_out,
          name='community_pull_out'),
-    # path('admin/', TemplateView.as_view(template_name='recovering/main.html')),
-    # path('admin/community/', CommunityListView.as_view(), name='community-list'),
-    # path('admin/community/<int:pk>/', community_details, name='community-detail'),
-    # path('admin/community/<int:pk>/change/', community_change, name='community-change')
+    path('myadmin/', TemplateView.as_view(template_name='recovering/main.html')),
+    path('myadmin/community/', CommunityListView.as_view(), name='community-list'),
+    path('myadmin/community/<int:pk>/', community_details, name='community-detail'),
+    path('myadmin/community/<int:pk>/change/', community_change, name='community-change')
 ]
