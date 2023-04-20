@@ -1,4 +1,7 @@
+import requests
 from django.contrib import admin
+from django.shortcuts import redirect
+
 from .models import *
 
 
@@ -12,13 +15,10 @@ class MemberAdmin(admin.ModelAdmin):
     ordering = ['type', 'created']
 
 
-"""@admin.register(Community)
+@admin.register(Community)
 class CommunityAdmin(admin.ModelAdmin):
-    search_fields = ['name']
-    list_display = ['id', 'name', 'creator', 'status', 'created']
-    list_filter = ['creator', 'status', 'created']
-    ordering = ['creator', 'status', 'created']
-"""
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        return redirect('/api/community/{}/'.format(object_id))
 
 
 @admin.register(Comity)
@@ -29,7 +29,7 @@ class ComityAdmin(admin.ModelAdmin):
     ordering = ['community']
 
 
-admin.site.register(Community)
+# admin.site.register(Community)
 admin.site.register(Saloon)
 admin.site.register(Version)
 admin.site.register(Favorites)

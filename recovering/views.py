@@ -1,17 +1,14 @@
 from django.contrib.auth import authenticate, login
-from django.http import JsonResponse
-from django.shortcuts import redirect, render
-from django.views.generic import ListView, DetailView
-from rest_framework import status, permissions
-from rest_framework.authentication import BasicAuthentication
+from django.contrib.auth import authenticate, login
+from rest_framework import permissions
 from rest_framework.decorators import api_view, renderer_classes, parser_classes
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
+from rest_framework.permissions import AllowAny, BasePermission
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
-from recovering.forms import CommunityForm
+
 from recovering.serializers import *
 
 
@@ -104,6 +101,7 @@ class VersionViewSet(ModelViewSet):
 
 class AdminViewSet(ModelViewSet):
     serializer_class = AdminSerializer
+
     # permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
@@ -242,33 +240,3 @@ def community_pull_out(request):
         community.members.remove(member)
 
         return Response(serializer.data)
-
-
-class CommunityListView(ListView):
-    model = Community
-    context_object_name = 'my_favorite_communities'
-
-
-def community_change(request, pk):
-    if request.method == 'POST':
-        community = Community.objects.get(pk=pk)
-        form = CommunityForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return redirect('community-list')
-    else:
-        community = Community.objects.get(pk=pk)
-        form = CommunityForm(instance=community)
-
-        return render(request, 'recovering/community_change.html', {'form': form})
-
-
-def community_details(request, pk):
-    community = Community.objects.get(id=pk)
-    serializer = CommunitySerializer(community)
-    return JsonResponse(serializer.data)
-
-
-def random(request):
-    return render(request, 'recovering/basic_count.html', context={'text': "hello world"})
