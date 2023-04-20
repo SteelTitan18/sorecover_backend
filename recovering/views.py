@@ -28,18 +28,20 @@ class IsCreatorOrAdmin(BasePermission):
         return obj.creator.username == request.user.username or request.user.is_staff
 
 
-"""class IsCreator(BasePermission):
-    def has_permission(self, request, view, community):
-        if request.method in ['POST']:
+class IsAdminOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        if request.method in ['POST', 'GET']:
             return True
-        elif request."""
+        elif request.method in ['PUT', 'DELETE']:
+            return request.user and request.user.is_staff
+        return False
 
 
 class MemberViewSet(ModelViewSet):
     serializer_class = MemberSerializer
     queryset = Member.objects.all()
 
-    permission_classes = [IsCreatorOrAdmin]
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         if 'community_id' in self.kwargs:
@@ -102,6 +104,7 @@ class VersionViewSet(ModelViewSet):
 
 class AdminViewSet(ModelViewSet):
     serializer_class = AdminSerializer
+    # permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         return Admin.objects.all()
@@ -265,3 +268,7 @@ def community_details(request, pk):
     community = Community.objects.get(id=pk)
     serializer = CommunitySerializer(community)
     return JsonResponse(serializer.data)
+
+
+def random(request):
+    return render(request, 'recovering/basic_count.html', context={'text': "hello world"})

@@ -17,7 +17,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class VersionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Version
-        fields = ['id', 'title', 'author', 'audio', 'saloon', 'lyrics', 'created']
+        fields = ['id', 'title', 'creator', 'audio', 'saloon', 'lyrics', 'created']
 
 
 class MemberSerializer(serializers.ModelSerializer):
@@ -56,7 +56,7 @@ class ComitySerializer(serializers.ModelSerializer):
 class SaloonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Saloon
-        fields = ['id', 'title', 'author', 'community', 'supervisor', 'state', 'created']
+        fields = ['id', 'title', 'creator', 'community', 'supervisor', 'state', 'created']
 
 
 class CommunityValidationSerializer(serializers.ModelSerializer):
@@ -80,4 +80,4 @@ class FinalVersionSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ['author', 'content', 'saloon']
+        fields = ['creator', 'content', 'saloon']

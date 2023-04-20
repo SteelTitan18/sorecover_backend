@@ -20,6 +20,7 @@ class CommunityAdmin(admin.ModelAdmin):
     ordering = ['creator', 'status', 'created']
 """
 
+
 @admin.register(Comity)
 class ComityAdmin(admin.ModelAdmin):
     search_fields = ['id', 'community']

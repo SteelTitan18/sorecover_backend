@@ -49,7 +49,7 @@ class Community(models.Model):
                               default=CommunityState.DRAFT)
     creator = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='community_creator',
                                 limit_choices_to={'type': Member.MemberType.PREMIUM})
-    supervisor = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='community_supervisor')
+    # supervisor = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='community_supervisor')
     description = models.TextField(verbose_name="Description", max_length=300)
     members = models.ManyToManyField(Member, related_name='community_members')
     created = models.DateTimeField(auto_now_add=True)
@@ -79,10 +79,9 @@ class Saloon(models.Model):
 
     title = models.CharField(max_length=100, verbose_name='title')
     description = models.TextField(verbose_name="Description", max_length=300)
-    author = models.ForeignKey(Member, related_name='version_author', on_delete=models.CASCADE)
+    creator = models.ForeignKey(Member, related_name='version_creator', on_delete=models.CASCADE)
     supervisor = models.ForeignKey(Member, related_name='saloon_supervisor',
                                    on_delete=models.CASCADE)
-    members = models.ManyToManyField(Member, related_name='saloon_members')
     state = models.CharField(max_length=2, choices=SaloonState.choices, default=SaloonState.BEGINNING)
     created = models.DateTimeField(auto_now_add=True)
     community = models.ForeignKey(Community, related_name='saloon_community', on_delete=models.CASCADE)
@@ -92,16 +91,16 @@ class Saloon(models.Model):
 
 
 @receiver(post_save, sender=Saloon)
-def set_author(sender, instance, **kwargs):
+def set_creator(sender, instance, **kwargs):
     if not instance.pk:
-        instance.author = Member.objects.get(pk=current_user.value.id)
+        instance.creator = Member.objects.get(pk=current_user.value.id)
 
 
 class Version(models.Model):
     title = models.CharField(verbose_name='Titre: ', max_length=50)
     audio = models.FileField(upload_to='versions/audio/')
-    author = models.ForeignKey(Member, related_name='project_version_author', on_delete=models.CASCADE)
-    lyrics = models.FileField(upload_to='versions/lyrics/')
+    creator = models.ForeignKey(Member, related_name='project_version_creator', on_delete=models.CASCADE)
+    lyrics = models.FileField(upload_to='versions/lyrics/', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     saloon = models.ForeignKey(Saloon, related_name='version_saloon', on_delete=models.CASCADE)
 
@@ -110,9 +109,9 @@ class Version(models.Model):
 
 
 """@receiver(post_save, sender=Version)
-def set_author(sender, instance, **kwargs):
+def set_creator(sender, instance, **kwargs):
     if not instance.pk:
-        instance.author = Member.objects.get(pk=current_user.value.id)"""
+        instance.creator = Member.objects.get(pk=current_user.value.id)"""
 
 
 @receiver(post_save, sender=Version)
@@ -122,7 +121,7 @@ def set_saloon_status(sender, instance, **kwargs):
 
 
 class Favorites(models.Model):
-    member = models.ForeignKey(Member, related_name='favorite_author', on_delete=models.CASCADE)
+    member = models.ForeignKey(Member, related_name='favorite_creator', on_delete=models.CASCADE)
     version = models.ForeignKey(Version, related_name='favorite_version', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -131,7 +130,7 @@ class Favorites(models.Model):
 
 
 class CommunityValidation(models.Model):
-    validator = models.ForeignKey(Admin, related_name='validation_author', on_delete=models.DO_NOTHING)
+    validator = models.ForeignKey(Admin, related_name='validation_creator', on_delete=models.DO_NOTHING)
     community = models.ForeignKey(Community, related_name='validation_community', on_delete=models.DO_NOTHING)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -140,7 +139,7 @@ class CommunityValidation(models.Model):
 
 
 class Message(models.Model):
-    author = models.ForeignKey(Member, related_name='message_author', on_delete=models.CASCADE)
+    creator = models.ForeignKey(Member, related_name='message_creator', on_delete=models.CASCADE)
     content = models.CharField(verbose_name="contenu", max_length=500)
     created = models.DateTimeField(auto_now_add=True)
     saloon = models.ForeignKey(Saloon, related_name='message_saloon', on_delete=models.CASCADE)
@@ -150,8 +149,8 @@ class Message(models.Model):
 
 
 """@receiver(post_save, sender=Message)
-def set_message_author(sender, instance, **kwargs):
-    instance.author = Member.objects.get(pk=current_user.value.id)"""
+def set_message_creator(sender, instance, **kwargs):
+    instance.creator = Member.objects.get(pk=current_user.value.id)"""
 
 
 class FinalVersion(models.Model):
@@ -184,14 +183,14 @@ def password_validation(sender, instance, **kwargs):
             instance.set_password(instance.password)
 
 
-"""@receiver(post_save, sender=Admin)
+@receiver(pre_save, sender=Admin)
 def password_validation(sender, instance, **kwargs):
-    try:
+    if not instance.pk:
+        instance.set_password(instance.password)
+    else:
         original = Admin.objects.get(pk=instance.pk)
         if instance.password != original.password:
             instance.set_password(instance.password)
-    except:
-        instance.set_password(instance.password)"""
 
 
 @receiver(post_save, sender=Community)
