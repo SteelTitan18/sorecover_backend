@@ -51,7 +51,7 @@ class Community(models.Model):
                                 limit_choices_to={'type': Member.MemberType.PREMIUM})
     # supervisor = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='community_supervisor')
     description = models.TextField(verbose_name="Description", max_length=300)
-    members = models.ManyToManyField(Member, related_name='community_members')
+    members = models.ManyToManyField(Member, related_name='community_members', blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -60,7 +60,10 @@ class Community(models.Model):
 
 @receiver(post_save, sender=Community)
 def add_first_member(sender, instance, **kwargs):
-    instance.members.add(Member.objects.get(pk=instance.creator))
+    member = Member.objects.get(pk=instance.creator)
+    if member not in instance.members.all():
+        print("ok")
+        instance.members.add(Member.objects.get(pk=instance.creator))
 
 
 class Comity(models.Model):
@@ -204,7 +207,7 @@ def create_comity(sender, instance, **kwargs):
 
 
 @receiver(pre_save, sender=Community)
-def create_comity_validation(sender, instance, **kwargs):
+def create_community_validation(sender, instance, **kwargs):
     try:
         user = Admin.objects.get(pk=current_user.value.id)
         if instance.pk:
