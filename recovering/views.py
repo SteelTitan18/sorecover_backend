@@ -1,5 +1,6 @@
+import pyrebase
 from django.contrib.auth import authenticate, login
-from django.contrib.auth import authenticate, login
+from django.db.models.signals import post_delete, pre_delete
 from rest_framework import permissions
 from rest_framework.decorators import api_view, renderer_classes, parser_classes
 from rest_framework.parsers import JSONParser
@@ -10,6 +11,29 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from recovering.serializers import *
+
+# firebase connection
+config = {
+    "apiKey": "AIzaSyC6tx1tvItqzjh0GGBKQAZTIx83X78ta1k",
+
+    "authDomain": "sorecover.firebaseapp.com",
+
+    "databaseURL": "https://sorecover-default-rtdb.firebaseio.com",
+
+    "projectId": "sorecover",
+
+    "storageBucket": "sorecover.appspot.com",
+
+    "messagingSenderId": "712261750260",
+
+    "appId": "1:712261750260:web:1d4cc1ec2d93d5b79c3da1",
+
+    "measurementId": "G-CKLF52DDH0"
+}
+
+firebase = pyrebase.initialize_app(config)
+authe = firebase.auth()
+db = firebase.database()
 
 
 # Create your views here.
@@ -240,3 +264,31 @@ def community_pull_out(request):
         community.members.remove(member)
 
         return Response(serializer.data)
+
+
+def firebase_messages_searching(message_id):
+    messages = db.child('messages').get()
+    for message in messages.each():
+        if message.val()['id'] == message_id:
+            return message
+    return None
+
+
+@receiver(post_save, sender=Message)
+def firebase_save_update(sender, instance, **kwargs):
+    data = FirebaseMessageSerializer(instance).data
+    message = firebase_messages_searching(data['id'])
+    if message:
+        db.child("messages").child(message.key()).update(data)
+    else:
+        db.child("messages").push(data)
+
+
+@receiver(pre_delete, sender=Message)
+def firebase_delete_update(sender, instance, **kwargs):
+    data = FirebaseMessageSerializer(instance).data
+    message = firebase_messages_searching(data['id'])
+    try:
+        db.child("messages").child(message.key()).remove()
+    except:
+        pass

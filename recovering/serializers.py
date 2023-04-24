@@ -81,3 +81,9 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ['creator', 'content', 'saloon']
+
+
+class FirebaseMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['id', 'creator', 'content', 'saloon']
