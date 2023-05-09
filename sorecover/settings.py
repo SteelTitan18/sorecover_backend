@@ -165,7 +165,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://web-production-54ee.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://web-production-8004.up.railway.app']
 
 # CORS_ORIGIN_WHITELIST = ['https://web-production-54ee.up.railway.app']
 
