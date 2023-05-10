@@ -106,6 +106,8 @@ class Version(models.Model):
     lyrics = models.FileField(upload_to='versions/lyrics/', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     saloon = models.ForeignKey(Saloon, related_name='version_saloon', on_delete=models.CASCADE)
+    like = models.ManyToManyField(User, related_name="likers")
+    dislike = models.ManyToManyField(User, related_name="dislikers")
 
     def __str__(self):
         return self.title

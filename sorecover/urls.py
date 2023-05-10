@@ -47,4 +47,6 @@ urlpatterns = [
          name='community_integration'),
     path('api/community_pull_out/', community_pull_out,
          name='community_pull_out'),
+    path('api/like_version/', version_liking, name='like-version'),
+    path('api/dislike_version/', version_disliking, name='dislike-version'),
 ]

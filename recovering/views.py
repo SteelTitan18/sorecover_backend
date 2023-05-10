@@ -266,6 +266,48 @@ def community_pull_out(request):
         return Response(serializer.data)
 
 
+@api_view(('POST',))
+@parser_classes([JSONParser])
+@renderer_classes((JSONRenderer,))
+def version_liking(request):
+    if request.method == "POST":
+        version = Version.objects.get(pk=request.data["version_id"])
+        user = request.user
+
+        serializer = VersionSerializer(version)
+
+        if user in version.dislike.all():
+            version.dislike.remove(user)
+            version.like.add(user)
+        elif user not in version.like.all():
+            version.like.add(user)
+        else:
+            version.like.remove(user)
+
+        return Response(serializer.data)
+
+
+@api_view(('POST',))
+@parser_classes([JSONParser])
+@renderer_classes((JSONRenderer,))
+def version_disliking(request):
+    if request.method == "POST":
+        version = Version.objects.get(pk=request.data["version_id"])
+        user = request.user
+
+        serializer = VersionSerializer(version)
+
+        if user in version.like.all():
+            version.like.remove(user)
+            version.dislike.add(user)
+        elif user not in version.dislike.all():
+            version.dislike.add(user)
+        else:
+            version.dislike.remove(user)
+
+        return Response(serializer.data)
+
+
 def firebase_messages_searching(message_id):
     messages = db.child('messages').get()
     for message in messages.each():

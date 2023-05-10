@@ -17,7 +17,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class VersionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Version
-        fields = ['id', 'title', 'creator', 'audio', 'saloon', 'lyrics', 'created']
+        fields = ['id', 'title', 'creator', 'audio', 'saloon', 'like', 'dislike', 'lyrics', 'created']
 
 
 class MemberSerializer(serializers.ModelSerializer):
