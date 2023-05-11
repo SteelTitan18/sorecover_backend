@@ -49,4 +49,6 @@ urlpatterns = [
          name='community_pull_out'),
     path('api/like_version/', version_liking, name='like-version'),
     path('api/dislike_version/', version_disliking, name='dislike-version'),
+    path('api/tag_on_message/', message_taging, name='tag-on-message'),
+    path('api/tag_on_version/', version_taging, name='tag-on-version'),
 ]

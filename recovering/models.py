@@ -42,14 +42,11 @@ class Community(models.Model):
         DRAFT = 'DR', 'Draft'
         VALIDATED = 'VD', 'Validated'
 
-    # def __int__(self):
-
     name = models.CharField(verbose_name="Nom: ", max_length=50, unique=True)
     status = models.CharField(verbose_name="Status", max_length=2, choices=CommunityState.choices,
                               default=CommunityState.DRAFT)
     creator = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='community_creator',
                                 limit_choices_to={'type': Member.MemberType.PREMIUM})
-    # supervisor = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='community_supervisor')
     description = models.TextField(verbose_name="Description", max_length=300)
     members = models.ManyToManyField(Member, related_name='community_members', blank=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -113,12 +110,6 @@ class Version(models.Model):
         return self.title
 
 
-"""@receiver(post_save, sender=Version)
-def set_creator(sender, instance, **kwargs):
-    if not instance.pk:
-        instance.creator = Member.objects.get(pk=current_user.value.id)"""
-
-
 @receiver(post_save, sender=Version)
 def set_saloon_status(sender, instance, **kwargs):
     instance.saloon.state = Saloon.SaloonState.PROGRESSING
@@ -148,14 +139,11 @@ class Message(models.Model):
     content = models.CharField(verbose_name="contenu", max_length=500)
     created = models.DateTimeField(auto_now_add=True)
     saloon = models.ForeignKey(Saloon, related_name='message_saloon', on_delete=models.CASCADE)
+    message_tag = models.ForeignKey('self', related_name='tag_on_message', on_delete=models.DO_NOTHING, null=True, blank=True)
+    version_tag = models.ForeignKey(Version, related_name='tag_on_version', on_delete=models.DO_NOTHING, null=True, blank=True)
 
     def __str__(self):
         return self.content
-
-
-"""@receiver(post_save, sender=Message)
-def set_message_creator(sender, instance, **kwargs):
-    instance.creator = Member.objects.get(pk=current_user.value.id)"""
 
 
 class FinalVersion(models.Model):

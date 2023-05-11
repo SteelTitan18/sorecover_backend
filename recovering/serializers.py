@@ -80,7 +80,7 @@ class FinalVersionSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ['creator', 'content', 'saloon']
+        fields = ['creator', 'content', 'saloon', 'message_tag', 'version_tag']
 
 
 class FirebaseMessageSerializer(serializers.ModelSerializer):

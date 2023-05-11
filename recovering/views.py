@@ -308,6 +308,39 @@ def version_disliking(request):
         return Response(serializer.data)
 
 
+@api_view(('POST',))
+@parser_classes([JSONParser])
+@renderer_classes((JSONRenderer,))
+def message_taging(request):
+    if request.method == "POST":
+        message = Message.objects.get(pk=request.data["message_id"])
+        tag = Message.objects.get(pk=request.data["tag_id"])
+
+        serializer = MessageSerializer(message)
+
+        if message != tag:
+            message.message_tag = tag
+            message.save()
+
+        return Response(serializer.data)
+
+
+@api_view(('POST',))
+@parser_classes([JSONParser])
+@renderer_classes((JSONRenderer,))
+def version_taging(request):
+    if request.method == "POST":
+        message = Message.objects.get(pk=request.data["message_id"])
+        tag = Version.objects.get(pk=request.data["tag_id"])
+
+        serializer = MessageSerializer(message)
+
+        message.version_tag = tag
+        message.save()
+
+        return Response(serializer.data)
+
+
 def firebase_messages_searching(message_id):
     messages = db.child('messages').get()
     for message in messages.each():
