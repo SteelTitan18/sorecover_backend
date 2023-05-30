@@ -42,7 +42,11 @@ urlpatterns = [
     path('api/login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/community/<int:community_id>/members', MemberViewSet.as_view({'get': 'list'}), name='community_members'),
     path('api/community/<int:community_id>/saloons', SaloonViewSet.as_view({'get': 'list'}), name='community_saloons'),
-    path('api/saloon/<int:saloon_id>/messages', MessageViewSet.as_view({'get': 'list'}), name='saloon_messages'),
+    path('api/member/<int:member_id>/communities', ValidatedCommunityViewSet.as_view({'get': 'list'}),
+         name='member_communities'),
+path('api/member/<int:member_id>/saloons', SaloonViewSet.as_view({'get': 'list'}),
+         name='member_projects'),
+    # path('api/saloon/<int:saloon_id>/messages', MessageViewSet.as_view({'get': 'list'}), name='saloon_messages'),
     path('api/community_integration/', community_integration,
          name='community_integration'),
     path('api/community_pull_out/', community_pull_out,
@@ -51,4 +55,5 @@ urlpatterns = [
     path('api/dislike_version/', version_disliking, name='dislike-version'),
     path('api/tag_on_message/', message_taging, name='tag-on-message'),
     path('api/tag_on_version/', version_taging, name='tag-on-version'),
+    path('test/', MessageViewSet.as_view({'get': 'list'}), name='test'),
 ]

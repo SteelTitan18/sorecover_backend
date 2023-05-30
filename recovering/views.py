@@ -1,6 +1,7 @@
 import pyrebase
 from django.contrib.auth import authenticate, login
 from django.db.models.signals import post_delete, pre_delete
+from django.db.models import Q
 from rest_framework import permissions
 from rest_framework.decorators import api_view, renderer_classes, parser_classes
 from rest_framework.parsers import JSONParser
@@ -144,9 +145,16 @@ class CommunityViewSet(ModelViewSet):
 class ValidatedCommunityViewSet(ModelViewSet):
     permission_classes = [IsCreatorOrAdmin]
     serializer_class = ValidatedCommunitySerializer
+    queryset = Community.objects.filter(status=Community.CommunityState.VALIDATED)
 
     def get_queryset(self):
-        return Community.objects.filter(status=Community.CommunityState.VALIDATED)
+        if 'member_id' in self.kwargs:
+            member_id = [self.kwargs['member_id']]
+
+            if member_id:
+                return self.queryset.filter(Q(members__in=member_id))
+            else:
+                return self.queryset
 
 
 class ComityViewSet(ModelViewSet):
@@ -168,6 +176,16 @@ class SaloonViewSet(ModelViewSet):
             community_id = self.kwargs['community_id']
             if community_id:
                 return self.queryset.filter(community_id=community_id)
+        elif 'member_id' in self.kwargs:
+            member_id = [self.kwargs['member_id']]
+            communities = Community.objects.filter(status=Community.CommunityState.VALIDATED)\
+                .filter(Q(members__in=member_id))
+
+            result = Saloon.objects.filter(title="")
+            for community in communities.all():
+                result = result | Saloon.objects.filter(community_id=community.id)
+            return result
+
         else:
             return self.queryset
 
@@ -208,7 +226,8 @@ class FinalVersionViewSet(ModelViewSet):
         return FinalVersion.objects.all()
 
 
-class MessageViewSet(ModelViewSet):
+"""class MessageViewSet(ModelViewSet):
+    template_name = 'test.html'
     serializer_class = MessageSerializer
     queryset = Message.objects.all().order_by('created')
     permission_classes = [IsCreatorOrAdmin]
@@ -219,7 +238,25 @@ class MessageViewSet(ModelViewSet):
             if saloon_id:
                 return self.queryset.filter(saloon=saloon_id)
         else:
-            return self.queryset
+            return self.queryset"""
+
+
+class MessageViewSet(ModelViewSet):
+    serializer_class = MessageSerializer
+    queryset = Message.objects.all().order_by('created')
+    permission_classes = [IsCreatorOrAdmin]
+
+    def get_queryset(self):
+        count = 10
+        messages = db.child('messages').get()
+        messages = list(messages)
+        print(messages)
+        return messages
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['data'] = self.queryset  # Passez les données au contexte du template
+        return context
 
 
 @api_view(('GET',))
