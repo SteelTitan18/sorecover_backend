@@ -23,7 +23,7 @@ class VersionSerializer(serializers.ModelSerializer):
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ['username', 'password', 'type', 'first_name', 'last_name',
+        fields = ['id', 'username', 'password', 'type', 'first_name', 'last_name',
                   'created', 'email', 'city', 'neighborhood',
                   'phone_number']
 

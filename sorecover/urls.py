@@ -44,7 +44,7 @@ urlpatterns = [
     path('api/community/<int:community_id>/saloons', SaloonViewSet.as_view({'get': 'list'}), name='community_saloons'),
     path('api/member/<int:member_id>/communities', ValidatedCommunityViewSet.as_view({'get': 'list'}),
          name='member_communities'),
-path('api/member/<int:member_id>/saloons', SaloonViewSet.as_view({'get': 'list'}),
+    path('api/member/<int:member_id>/saloons', SaloonViewSet.as_view({'get': 'list'}),
          name='member_projects'),
     # path('api/saloon/<int:saloon_id>/messages', MessageViewSet.as_view({'get': 'list'}), name='saloon_messages'),
     path('api/community_integration/', community_integration,

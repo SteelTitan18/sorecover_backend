@@ -156,6 +156,8 @@ class ValidatedCommunityViewSet(ModelViewSet):
             else:
                 return self.queryset
 
+        return self.queryset
+
 
 class ComityViewSet(ModelViewSet):
     serializer_class = ComitySerializer
