@@ -38,13 +38,13 @@ class AdminSerializer(serializers.ModelSerializer):
 class CommunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Community
-        fields = ['creator', 'name', 'status', 'description', 'created', 'members']
+        fields = ['id', 'creator', 'name', 'image','status', 'description', 'created', 'members']
 
 
 class ValidatedCommunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Community
-        fields = ['id', 'creator', 'name', 'description', 'status', 'created', 'members']
+        fields = ['id', 'creator', 'name', 'image','description', 'status', 'created', 'members']
 
 
 class ComitySerializer(serializers.ModelSerializer):

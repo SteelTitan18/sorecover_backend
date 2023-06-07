@@ -1,7 +1,7 @@
 import pyrebase
 from django.contrib.auth import authenticate, login
 from django.db.models.signals import post_delete, pre_delete
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from rest_framework import permissions
 from rest_framework.decorators import api_view, renderer_classes, parser_classes
 from rest_framework.parsers import JSONParser
@@ -69,7 +69,7 @@ class MemberViewSet(ModelViewSet):
         if 'community_id' in self.kwargs:
             community_id = self.kwargs['community_id']
             if community_id:
-                return Community.objects.get(pk=community_id).members
+                return Community.objects.get(pk=community_id).members.all()
         else:
             return self.queryset
 
@@ -245,19 +245,22 @@ class FinalVersionViewSet(ModelViewSet):
 
 class MessageViewSet(ModelViewSet):
     serializer_class = MessageSerializer
-    queryset = Message.objects.all().order_by('created')
     permission_classes = [IsCreatorOrAdmin]
 
     def get_queryset(self):
-        count = 10
-        messages = db.child('messages').get()
-        messages = list(messages)
-        print(messages)
-        return messages
+        queryset = Message.objects.all().order_by('created')
+
+        saloon_id = self.kwargs['saloon_id']
+        if saloon_id is not None:
+            print("ok")
+            saloon = Saloon.objects.get(pk=saloon_id)
+            queryset = queryset.filter(saloon=saloon)
+
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['data'] = self.queryset  # Passez les données au contexte du template
+        context['data'] = self.queryset
         return context
 
 

@@ -46,7 +46,7 @@ urlpatterns = [
          name='member_communities'),
     path('api/member/<int:member_id>/saloons', SaloonViewSet.as_view({'get': 'list'}),
          name='member_projects'),
-    # path('api/saloon/<int:saloon_id>/messages', MessageViewSet.as_view({'get': 'list'}), name='saloon_messages'),
+    path('api/saloon/<int:saloon_id>/messages', MessageViewSet.as_view({'get': 'list'}), name='saloon_messages'),
     path('api/community_integration/', community_integration,
          name='community_integration'),
     path('api/community_pull_out/', community_pull_out,
@@ -55,5 +55,5 @@ urlpatterns = [
     path('api/dislike_version/', version_disliking, name='dislike-version'),
     path('api/tag_on_message/', message_taging, name='tag-on-message'),
     path('api/tag_on_version/', version_taging, name='tag-on-version'),
-    path('test/', MessageViewSet.as_view({'get': 'list'}), name='test'),
+    path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
 ]

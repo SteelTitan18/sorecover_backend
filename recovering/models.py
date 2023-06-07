@@ -1,9 +1,15 @@
 import threading
+
+from django.core.mail import send_mail
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
+from django.urls import reverse
+from django_rest_passwordreset.signals import reset_password_token_created
 from phonenumber_field.modelfields import PhoneNumberField
+
+from sorecover import settings
 
 current_user = threading.local()
 
@@ -45,6 +51,7 @@ class Community(models.Model):
     name = models.CharField(verbose_name="Nom: ", max_length=50, unique=True)
     status = models.CharField(verbose_name="Status", max_length=2, choices=CommunityState.choices,
                               default=CommunityState.DRAFT)
+    image = models.FileField(upload_to='communities/images/', blank=True, null=True)
     creator = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='community_creator',
                                 limit_choices_to={'type': Member.MemberType.PREMIUM})
     description = models.TextField(verbose_name="Description", max_length=300)
@@ -139,8 +146,10 @@ class Message(models.Model):
     content = models.CharField(verbose_name="contenu", max_length=500)
     created = models.DateTimeField(auto_now_add=True)
     saloon = models.ForeignKey(Saloon, related_name='message_saloon', on_delete=models.CASCADE)
-    message_tag = models.ForeignKey('self', related_name='tag_on_message', on_delete=models.DO_NOTHING, null=True, blank=True)
-    version_tag = models.ForeignKey(Version, related_name='tag_on_version', on_delete=models.DO_NOTHING, null=True, blank=True)
+    message_tag = models.ForeignKey('self', related_name='tag_on_message', on_delete=models.DO_NOTHING, null=True,
+                                    blank=True)
+    version_tag = models.ForeignKey(Version, related_name='tag_on_version', on_delete=models.DO_NOTHING, null=True,
+                                    blank=True)
 
     def __str__(self):
         return self.content
@@ -216,3 +225,22 @@ class CurrentUserMiddleware:
         current_user.value = request.user
         response = self.get_response(request)
         return response
+
+
+@receiver(reset_password_token_created)
+def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+    email_plaintext_message = "http://127.0.0.1:8000{}?token={}".format(
+        reverse('password_reset:reset-password-request'),
+        reset_password_token.key)
+
+    send_mail(
+        # title:
+        "Password Reset for {title}".format(title="Some website title"),
+        # message:
+        "Copiez ce code : ".format(
+            reset_password_token.key),
+        # from:
+        settings.EMAIL_HOST_USER,
+        # to:
+        [reset_password_token.user.email]
+    )
