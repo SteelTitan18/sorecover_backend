@@ -10,8 +10,9 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
-
 from recovering.serializers import *
+from django.contrib.auth.decorators import permission_required
+
 
 # firebase connection
 config = {
@@ -57,6 +58,12 @@ class IsAdminOrReadOnly(BasePermission):
         elif request.method in ['PUT', 'DELETE']:
             return request.user and request.user.is_staff
         return False
+
+
+class OnlyAdmin(BasePermission):
+    def has_permission(self, request, view):
+        if request.method in ['POST']:
+            return request.user and request.user.is_staff
 
 
 class MemberViewSet(ModelViewSet):
@@ -381,6 +388,49 @@ def version_taging(request):
         message.save()
 
         return Response(serializer.data)
+
+
+@api_view(('POST',))
+@renderer_classes((JSONRenderer,))
+@parser_classes([JSONParser])
+@permission_required([OnlyAdmin])
+def validate_community(request):
+    if request.method == 'POST':
+        community = Community.objects.get(pk=request.data["community_id"])
+        community.status = community.CommunityState.VALIDATED
+
+        serializer = CommunitySerializer(community)
+
+        return Response(serializer.data)
+
+
+@api_view(('POST',))
+@renderer_classes((JSONRenderer,))
+@parser_classes([JSONParser])
+@permission_required([OnlyAdmin])
+def unvalidate_community(request):
+    if request.method == 'POST':
+        community = Community.objects.get(pk=request.data["community_id"])
+        community.status = community.CommunityState.DRAFT
+
+        serializer = CommunitySerializer(community)
+
+        return Response(serializer.data)
+
+
+@api_view(('POST',))
+@renderer_classes((JSONRenderer,))
+@parser_classes([JSONParser])
+@permission_required([IsAdminOrReadOnly])
+def get_usernames(request):
+    if request.method == 'POST':
+        usernames = {}
+        id_list = request.data["id_list"]
+        
+        for id in id_list:
+            usernames['{}'.format(id)] = Member.objects.get(pk=id).username
+
+        return Response(usernames)
 
 
 def firebase_messages_searching(message_id):

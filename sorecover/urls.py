@@ -56,4 +56,7 @@ urlpatterns = [
     path('api/tag_on_message/', message_taging, name='tag-on-message'),
     path('api/tag_on_version/', version_taging, name='tag-on-version'),
     path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    path('api/validate_community/', validate_community, name='validate-community'),
+    path('api/unvalidate_community/', unvalidate_community, name='unvalidate-community'),
+    path('api/get_usernames/', get_usernames, name='get-usernames')
 ]
