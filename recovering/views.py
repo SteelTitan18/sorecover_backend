@@ -12,6 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
 from recovering.serializers import *
 from django.contrib.auth.decorators import permission_required
+from rest_framework.views import APIView
 
 
 # firebase connection
@@ -63,8 +64,9 @@ class IsAdminOrReadOnly(BasePermission):
 class OnlyAdmin(BasePermission):
     def has_permission(self, request, view):
         if request.method in ['POST']:
+            print(request.user.is_staff)
             return request.user and request.user.is_staff
-
+        return False
 
 class MemberViewSet(ModelViewSet):
     serializer_class = MemberSerializer
@@ -250,6 +252,24 @@ class FinalVersionViewSet(ModelViewSet):
             return self.queryset"""
 
 
+
+class ValidateCommunity(APIView):
+
+    permission_classes = [OnlyAdmin]
+
+    @renderer_classes((JSONRenderer,))
+    @parser_classes([JSONParser])
+    def post(self, request):
+        community = Community.objects.get(pk=request.data["community_id"])
+        community.status = community.CommunityState.VALIDATED
+
+        serializer = CommunitySerializer(community)
+
+        return Response(serializer.data)
+
+
+
+
 class MessageViewSet(ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsCreatorOrAdmin]
@@ -390,10 +410,10 @@ def version_taging(request):
         return Response(serializer.data)
 
 
-@api_view(('POST',))
+"""@api_view(('POST',))
 @renderer_classes((JSONRenderer,))
 @parser_classes([JSONParser])
-@permission_required([OnlyAdmin])
+@permission_required([IsAdminOrReadOnly])
 def validate_community(request):
     if request.method == 'POST':
         community = Community.objects.get(pk=request.data["community_id"])
@@ -401,7 +421,7 @@ def validate_community(request):
 
         serializer = CommunitySerializer(community)
 
-        return Response(serializer.data)
+        return Response(serializer.data)"""
 
 
 @api_view(('POST',))
