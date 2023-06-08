@@ -255,7 +255,7 @@ class FinalVersionViewSet(ModelViewSet):
 
 class ValidateCommunity(APIView):
 
-    permission_classes = [OnlyAdmin]
+    permission_classes = [IsAdminOrReadOnly]
 
     @renderer_classes((JSONRenderer,))
     @parser_classes([JSONParser])
